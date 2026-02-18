@@ -1,0 +1,127 @@
+/* --- 变量定义 (替换为目标绿色 #668687) --- */
+:root {
+    --cal-accent: #668687; /* 目标主题绿色 */
+    --cal-accent-hover: #557475; /* hover 加深的绿色（可选） */
+    --cal-border: #e0e0e0;
+    --cal-text-main: #333;
+    --cal-text-muted: #ccc;
+}
+
+/* --- 容器样式 --- */
+.calendar-card-wrapper {
+    width: 100%;
+    max-width: 320px;
+    background: #fff;
+    border-right: 1px solid var(--cal-border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* --- Ant Design 样式覆盖 (关键部分) --- */
+
+/* 移除 AntD 默认的面板边框和背景 */
+.calendar-card-wrapper .ant-picker-calendar .ant-picker-panel {
+    background: transparent;
+    border: none;
+}
+
+/* 调整日期主体区域的内边距，使其更紧凑 */
+.calendar-card-wrapper .ant-picker-calendar .ant-picker-date-panel .ant-picker-body {
+    padding: 10px 0 !important;
+}
+
+/* 调整星期表头 (S M T W T F S) */
+.calendar-card-wrapper .ant-picker-calendar .ant-picker-content th {
+    color: #aaa !important;
+    font-size: 0.75rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+/* 移除单元格默认 Padding，让我们的圆形居中 */
+.calendar-card-wrapper .ant-picker-cell {
+    padding: 3px 0 !important;
+}
+
+/* 隐藏 AntD 默认的日期选中块，完全由自定义渲染接管 */
+.calendar-card-wrapper .ant-picker-cell-inner {
+    display: none !important;
+}
+
+/* --- 自定义单元格样式 --- */
+.custom-cell {
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 0.8rem;
+    position: relative;
+    margin: 0 auto;
+    width: 36px;
+    height: 36px;
+    transition: all 0.2s;
+    color: #eee; /* 默认非本月颜色 */
+}
+
+/* 本月日期 */
+.custom-cell.current-month {
+    color: #555;
+}
+
+/* 悬停效果 (未选中时) */
+.custom-cell:not(.selected):hover {
+    background-color: #f0f0f0;
+}
+
+/* 今天 (Today) - 边框改为主题绿色 */
+.custom-cell.today {
+    border: 1px solid var(--cal-accent);
+    color: var(--cal-accent);
+}
+
+/* 选中状态 (Selected) - 背景改为主题绿色 */
+.custom-cell.selected {
+    background: var(--cal-accent) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+/* 数据小圆点 - 颜色改为主题绿色 */
+.dot-marker {
+    position: absolute;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--cal-accent);
+}
+
+/* 选中状态下的小圆点 - 白色对比 */
+.custom-cell.selected .dot-marker {
+    background: #fff;
+}
+
+/* --- 底部列表区域 --- */
+.record-list-area {
+    background: #fafafa;
+    border-top: 1px dashed var(--cal-border);
+    flex: 1;
+    overflow-y: auto;
+    min-height: 200px;
+}
+
+.record-list-header {
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.75rem;
+    color: #999;
+    font-family: monospace;
+}
+
+.compact-calendar.ant-picker-calendar-mini {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+

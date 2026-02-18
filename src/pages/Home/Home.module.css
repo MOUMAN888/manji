@@ -1,0 +1,736 @@
+/* 定义局部变量 */
+.container {
+    --bg-sidebar: #2c2c2c;
+    --bg-list: #ffffff;
+    --bg-content: #fdfaf7;
+    --accent: #7a9e9f;
+    --accent-dim: rgba(122, 158, 159, 0.1);
+    --accent-shadow: rgba(122, 158, 159, 0.4);
+    --accent-hover: #668687;
+    --border: #e0e0e0;
+    --text-main: #333;
+    --text-muted: #888;
+    --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --font-serif: "Songti SC", "Noto Serif SC", serif;
+    --sidebar-width: 240px;
+    --middle-width: 320px;
+    --resizer-width: 6px;
+    /* 新增：定义resizer宽度 */
+
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-content);
+    height: 100vh;
+    width: 100%;
+    /* 关键修改：grid布局改为5列，包含两个resizer */
+    display: grid;
+    grid-template-columns: var(--sidebar-width) var(--resizer-width) var(--middle-width) var(--resizer-width) 1fr;
+    overflow: hidden;
+}
+
+/* 修复resizer样式，确保显示 */
+.resizer {
+    width: var(--resizer-width);
+    /* 使用变量统一宽度 */
+    cursor: col-resize;
+    position: relative;
+    /* 新增：确保resizer在最上层 */
+    z-index: 20;
+}
+
+.resizer:hover {
+    background: rgba(122, 158, 159, 0.8);
+}
+
+.resizer::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: #ddd;
+}
+
+/* 基础重置 */
+.container * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- 左侧：Sidebar --- */
+.sidebar {
+    background: var(--bg-sidebar);
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1a1a1a;
+    font-family: var(--font-mono);
+    position: relative;
+    z-index: 10;
+    /* 新增：防止溢出 */
+    overflow: hidden;
+}
+
+.brandArea {
+    padding: 25px;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -1px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brandArea span {
+    color: var(--accent);
+}
+
+.userCard {
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-info div:first-child {
+    color: #fff;
+    font-size: 0.9rem;
+}
+.userName {
+    color: #fff;
+    font-size: 1rem;
+}
+.idNumber {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* --- 极简数据卡片样式 --- */
+.statCard {
+    /* 位置与间距 */
+    margin: 15px 15px 10px;
+    padding: 10px;
+
+    /* 玻璃质感背景 */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+
+    /* 装饰：左侧强调线，使用你的主题色 */
+    border-left: 3px solid var(--accent);
+
+    /* 字体 */
+    font-family: var(--font-mono);
+}
+
+.statLabel {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* 图标和文字的间距 */
+}
+
+.statLabel span {
+    flex: 1;
+    /* 文字占满剩余空间 */
+    text-align: center;
+
+}
+
+
+.statNumber {
+    font-size: 2rem;
+    /* 大字体，突出成就感 */
+    font-weight: 500;
+    text-align: center;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -1px;
+    /* 稍微紧凑一点，更像数字时钟 */
+
+    /* 可选：给文字加一点微弱的发光效果 */
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* 鼠标放上去时的交互反馈 */
+.statCard:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.navHeader {
+    padding: 20px 25px 10px;
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    letter-spacing: 1px;
+}
+
+.addCategoryBtn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.addCategoryBtn:hover {
+    background: var(--accent);
+}
+
+.navMenu {
+    flex: 1;
+    padding: 10px 0;
+    overflow-y: auto;
+}
+
+.navItem {
+    padding: 12px 25px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid transparent;
+    color: #888;
+}
+
+.navItem:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.navItemActive {
+    background: rgba(122, 158, 159, 0.15);
+    color: var(--accent);
+    border-left-color: var(--accent);
+}
+
+.navCount {
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
+.versionInfo {
+    padding: 20px;
+    font-size: 0.7rem;
+    opacity: 0.3;
+    text-align: center;
+}
+
+.versionInfo span {
+    cursor: pointer;
+    text-decoration: underline;
+}
+.versionInfo span:hover {
+    opacity: 0.6;
+    color: var(--accent-hover);
+}
+
+/* --- 中间：Middle Column --- */
+.middleColumn {
+    background: var(--bg-list);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    /* 防止内容溢出 */
+    width: var(--middle-width);
+    /* 关键：使用CSS变量控制宽度 */
+    /* 新增：防止溢出 */
+    overflow: hidden;
+}
+
+.middleHeader {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    min-height: 73px;
+}
+
+.listTitle {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--bg-sidebar);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.toggleSwitch {
+    position: relative;
+    background: #f0f0f0;
+    border-radius: 20px;
+    padding: 2px;
+    display: flex;
+    gap: 2px;
+}
+
+.toggleBtn {
+    border: none;
+    background: transparent;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 16px;
+    transition: 0.3s;
+}
+
+.toggleBtnActive {
+    background: #fff;
+    color: var(--bg-sidebar);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.listContainer {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.listContainer h4 {
+    width: 100%;
+    white-space: nowrap;
+    /* 强制单行 */
+    overflow: hidden;
+    /* 隐藏超出内容 */
+    text-overflow: ellipsis;
+    /* 显示省略号 */
+}
+
+.articleItem {
+    padding: 20px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: 0.2s;
+    position: relative;
+}
+
+.articleItem:hover {
+    background: #fafafa;
+}
+
+.articleItemActive {
+    background: var(--bg-content);
+    border-right: 3px solid var(--accent);
+}
+
+.articleItem h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.metaInfo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metaTag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.dateText {
+    font-size: 0.75rem;
+    color: #999;
+    font-family: var(--font-mono);
+}
+
+/* 日历模式 */
+.calendarMode {
+    width: 100%;
+    padding: 20px 10px;
+    background: #fff;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.dayListTitle {
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.75rem;
+    color: #999;
+
+}
+
+.calHeader {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-family: var(--font-mono);
+}
+
+.calGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calCell {
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #555;
+    transition: 0.2s;
+}
+
+.calCellHeader {
+    color: #aaa;
+    font-weight: 600;
+    cursor: default;
+}
+
+.calCell:not(.calCellHeader):hover {
+    background: #f0f0f0;
+}
+
+.calCellHasData {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.calCellToday {
+    border: 1px solid var(--accent);
+}
+
+/* --- 右侧：Content Column --- */
+.contentColumn {
+    background-color: var(--bg-content);
+    background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* 新增：防止溢出 */
+    overflow: hidden;
+}
+
+.fabAddBtn {
+    position: absolute;
+    top: 70px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 3em;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    box-shadow: 0 10px 25px var(--accent-shadow);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 100;
+}
+
+.fabAddBtn:hover {
+    transform: scale(1.1) rotate(90deg);
+    background: var(--accent-hover);
+    box-shadow: 0 15px 35px var(--accent-shadow);
+}
+
+.statusBar {
+    height: 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: rgba(253, 250, 247, 0.9);
+    backdrop-filter: blur(5px);
+    min-height: 40px;
+}
+
+.path {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.path span::after {
+    content: "/";
+    margin-left: 8px;
+    opacity: 0.4;
+}
+
+.path span:last-child::after {
+    content: "";
+}
+
+.readerScroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.paperCard {
+    width: 100%;
+    max-width: 750px;
+    background: #fff;
+    min-height: 800px;
+    padding: 60px;
+    box-shadow:
+        8px 8px 0 rgba(44, 44, 44, 0.08),
+        -1px -1px 0 rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--border);
+    position: relative;
+}
+
+.paperCard::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+}
+
+.editTitle {
+    width: 100%;
+    font-size: 2.2rem;
+    font-family: var(--font-serif);
+    border: none;
+    outline: none;
+    margin-bottom: 30px;
+}
+
+.editContent {
+    width: 100%;
+    min-height: 400px;
+    font-size: 1.1rem;
+    line-height: 1.9;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: var(--font-serif);
+}
+
+/* --- 编辑器动作区域 --- */
+.editorActions {
+    margin-top: 40px;
+    padding-top: 20px;
+    /* 增加一条虚线，与顶部的Meta Block呼应，增加"单据"感 */
+    border-top: 1px dashed var(--border);
+    display: flex;
+    /* 右对齐，符合表单操作习惯 */
+    justify-content: flex-end;
+    gap: 15px;
+    align-items: center;
+}
+
+/* 按钮通用基础样式 */
+.btnBase {
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    /* 使用等宽字体，显得更有技术感 */
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 保存按钮 - 实心强调色 */
+.saveBtn {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+    box-shadow: 0 4px 10px var(--accent-shadow);
+}
+
+.saveBtn:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    transform: translateY(-2px);
+    /* 微微上浮 */
+    box-shadow: 0 6px 15px var(--accent-shadow);
+}
+
+.saveBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px var(--accent-shadow);
+}
+
+/* 取消按钮 - 幽灵按钮/描边风格 */
+.cancelBtn {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.cancelBtn:hover {
+    background: #f5f5f5;
+    color: var(--text-main);
+    border-color: #bbb;
+}
+
+.contentTitle {
+    font-family: var(--font-serif);
+    font-size: 2.2rem;
+    color: var(--bg-sidebar);
+    margin-bottom: 30px;
+    line-height: 1.3;
+}
+
+.contentMetaBlock {
+    display: flex;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 40px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    /* 新增：换行，防止溢出 */
+    flex-wrap: wrap;
+}
+
+.contentText {
+    font-family: var(--font-serif);
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: #222;
+    text-align: justify;
+    white-space: pre-wrap;
+}
+
+.emptyState {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    opacity: 0.6;
+    user-select: none;
+}
+
+.deleteBtn {
+    background: transparent;
+    border: none;
+    color: #a0a0a0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deleteBtn:hover {
+    color: #d9534f;
+    background: rgba(217, 83, 79, 0.1);
+}
+
+.navItem {
+    position: relative;
+}
+
+.navRightGroup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* hover 整行才显示删除 */
+.navItem:hover .deleteBtn {
+    opacity: 1;
+}
+
+/* hover 时弱化数量 */
+.navItem:hover .navCount {
+    opacity: 0.3;
+}
+
+.articleItem {
+    position: relative;
+}
+
+.articleItem .deleteBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 0.9rem;
+}
+
+/* hover item 才显示 */
+.articleItem:hover .deleteBtn {
+    opacity: 1;
+}
