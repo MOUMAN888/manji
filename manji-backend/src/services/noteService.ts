@@ -1,6 +1,6 @@
 import User from "../models/User";
 import Category from "../models/Category";
-import { Op, fn, col, where  } from "sequelize";
+import { Op, fn, col, where, WhereOptions } from "sequelize";
 import dayjs from "dayjs";
 import Note from "../models/Note";
 
@@ -68,11 +68,11 @@ export async function getNotesByCategory(userId: number, categoryId?: number) {
     });
 
     // 扁平化分类名称：直接返回 categoryName（更方便前端使用）
-    return notes.map((n: any) => {
+    return notes.map((n) => {
         const json = n.toJSON ? n.toJSON() : n;
         return {
             ...json,
-            categoryName: json?.Category?.name ?? null,
+            categoryName: (json as { Category?: { name?: string } }).Category?.name ?? null,
             Category: undefined,
         };
     });
@@ -88,7 +88,7 @@ export async function searchNotes(
     userId: number,
     keyword: string
 ) {
-    const whereCondition: any = {
+    const whereCondition: WhereOptions = {
         userId,
         [Op.or]: [
             { title: { [Op.like]: `%${keyword}%` } },
@@ -108,11 +108,11 @@ export async function searchNotes(
     });
 
     // 扁平化分类名称：直接返回 categoryName
-    return notes.map((n: any) => {
+    return notes.map((n) => {
         const json = n.toJSON ? n.toJSON() : n;
         return {
             ...json,
-            categoryName: json?.Category?.name ?? null,
+            categoryName: (json as { Category?: { name?: string } }).Category?.name ?? null,
             Category: undefined,
         };
     });
@@ -214,11 +214,11 @@ export async function getNotesByDate(
     });
 
     // 扁平化分类名称：直接返回 categoryName（更方便前端使用）
-    return notes.map((n: any) => {
+    return notes.map((n) => {
         const json = n.toJSON ? n.toJSON() : n;
         return {
             ...json,
-            categoryName: json?.Category?.name ?? null,
+            categoryName: (json as { Category?: { name?: string } }).Category?.name ?? null,
             Category: undefined,
         };
     });

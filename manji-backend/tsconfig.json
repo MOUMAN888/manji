@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "ES2020",       // 适配 Node.js 18
-    "module": "CommonJS",
+    "module": "Node16",
     "outDir": "./dist",       // TS 编译后的 JS 文件输出目录
     "rootDir": "./src",       // 你的 TS 源码目录
     "esModuleInterop": true,  // 兼容 CommonJS/ES 模块
     "skipLibCheck": true,
     "strict": false,          // 新手先关闭严格模式，避免额外报错
-    "moduleResolution": "Node"
+    "moduleResolution": "Node16"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
