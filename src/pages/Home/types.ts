@@ -36,6 +36,7 @@ export interface UserProfile {
     username: string;              // 用户名（对应后端username）
     avatar: string;            // 头像地址（后端默认空字符串）
     bio: string;               // 个人简介（对应后端intro）
+    intro?: string;            // 兼容：后端字段名为 intro
     passwordHash?: string;     // 可选：密码哈希（前端仅存储，不展示）
     wechatOpenid?: string;     // 可选：微信OpenID（适配后续微信登录）
     // 总字数不存储，通过 Article 列表计算得出：

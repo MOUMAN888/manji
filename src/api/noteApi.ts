@@ -26,6 +26,23 @@ export const getNotesByCategory = async (params: {
     return res as unknown as Article[];
 };
 
+// 获取用户所有笔记
+export const getNotesByUser = async (userId: number) => {
+    const res = await request.get<Article[]>(`/notes/user/${userId}`);
+    return res as unknown as Article[];
+};
+
+// 搜索笔记（按标题 / 内容模糊匹配）
+export const searchNotes = async (params: { userId: number; keyword: string }) => {
+    const res = await request.get<Article[]>(`/notes/search`, {
+        params: {
+            userId: params.userId,
+            keyword: params.keyword,
+        },
+    });
+    return res as unknown as Article[];
+};
+
 // 统计用户总字数
 export const getTotalWordCount = (userId: number) => {
     return request.get<WordCountResult>(`/notes/word-count/${userId}`);

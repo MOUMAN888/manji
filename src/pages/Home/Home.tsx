@@ -6,9 +6,9 @@ import styles from './Home.module.css';
 import Calendar from './components/Calendar/Calendar';
 import PaperEditor from './components/PaperEditor/PaperEditor';
 import CategoryModel from './components/CategoryModel/CategoryModel';
-// import { getUserTotalWordCount } from '../../api/userApi';
+import { getUserTotalWordCount, updateUserInfo as updateUserProfile } from '../../api/userApi';
 import { getCategoriesByUserId, deleteCategory, updateCategoryName } from '../../api/categoryApi';
-import { getNotesByCategory, createNote, updateNote, getNotesByDate, deleteNote } from '../../api/noteApi';
+import { getNotesByCategory, createNote, updateNote, getNotesByDate, deleteNote, getNotesByUser, searchNotes } from '../../api/noteApi';
 import type { Article, Category, UserProfile, Mode } from './types';
 import { Popconfirm, Modal, Input, message } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
@@ -31,7 +31,13 @@ function Home() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [editCategoryName, setEditCategoryName] = useState('');
-    // const [totalWords, setTotalWords] = useState<totalWords>({ totalWordCount: 0 });
+    const [isAllCategory, setIsAllCategory] = useState(false);
+    const [totalWords, setTotalWords] = useState<number>(0);
+    const [isSearchVisible, setIsSearchVisible] = useState(false);
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+    const [profileUsername, setProfileUsername] = useState('');
+    const [profileIntro, setProfileIntro] = useState('');
 
     const handleLogout = () => {
         localStorage.removeItem('userInfo');
@@ -74,6 +80,72 @@ function Home() {
         } catch (err) {
             console.error('修改分类失败：', err);
             message.error('修改分类失败');
+        }
+    };
+    const handleSearchNotes = async () => {
+        if (!userId || userId <= 0) {
+            message.error('未找到用户信息，无法搜索');
+            return;
+        }
+        const keyword = searchKeyword.trim();
+        if (!keyword) {
+            message.warning('请输入搜索关键字');
+            return;
+        }
+        try {
+            const res = await searchNotes({ userId, keyword });
+            setIsAllCategory(true);
+            setSelectedCategoryId(null);
+            setViewMode('list');
+            setDateArticles([]);
+            setArticles(res);
+            setSelectedArticleId(res.length ? res[0].id : null);
+        } catch (err) {
+            console.error('搜索笔记失败：', err);
+            message.error('搜索笔记失败');
+        }
+    };
+    const openProfileModal = () => {
+        setProfileUsername(userInfo?.username || '');
+        setProfileIntro(userInfo?.bio || '');
+        setIsProfileModalOpen(true);
+    };
+    const handleUpdateProfile = async () => {
+        if (!userId || userId <= 0) {
+            message.error('未找到用户信息');
+            return;
+        }
+        const username = profileUsername.trim();
+        const intro = profileIntro.trim();
+        if (!username && !intro) {
+            message.warning('请至少修改用户名或简介');
+            return;
+        }
+        try {
+            const res = await updateUserProfile(userId, {
+                username: username || undefined,
+                intro: intro || undefined,
+            });
+            const nextUser: UserProfile = {
+                id: res.id,
+                username: res.username,
+                avatar: res.avatar,
+                bio: res.intro ?? '',
+                intro: res.intro ?? '',
+            };
+            setUserInfo(nextUser);
+            // 同步本地缓存：兼容 intro/bio 两种字段
+            const cached = localStorage.getItem('userInfo');
+            const cachedObj = cached ? JSON.parse(cached) : {};
+            localStorage.setItem('userInfo', JSON.stringify({
+                ...cachedObj,
+                ...res,
+                bio: res.intro ?? '',
+            }));
+            setIsProfileModalOpen(false);
+            message.success('个人资料已更新');
+        } catch (err) {
+            console.error('修改个人资料失败：', err);
         }
     };
     const handleCreateNew = () => {
@@ -242,12 +314,13 @@ function Home() {
         }
 
         try {
-            const parsedUser: UserProfile = JSON.parse(userInfoStr);
+            const parsedUser = JSON.parse(userInfoStr) as UserProfile;
             const validUser: UserProfile = {
                 id: Number(parsedUser.id) || 0,
-                username: parsedUser.username || parsedUser.username || 'Unknown User',
+                username: parsedUser.username || 'Unknown User',
                 avatar: parsedUser.avatar || '',
-                bio: parsedUser.bio || 'No bio provided'
+                bio: parsedUser.intro ?? parsedUser.bio ?? 'No bio provided',
+                intro: parsedUser.intro ?? parsedUser.bio ?? '',
             };
             // 仅更新状态，无其他逻辑 → 消除同步更新警告
             setTimeout(() => {
@@ -312,46 +385,36 @@ function Home() {
         }
     }, [articles]);
 
-// useEffect(() => {
-//     if (userId === null) return;
+    useEffect(() => {
+        if (!userId || userId <= 0) return;
 
-//     // 使用 async/await 获取数据
-//     const fetchTotalWords = async () => {
-//         try {
-//             const res = await getUserTotalWordCount(userId);  // 获取的就是 totalWords
-//             console.log('获取总字数成功：', res);
-//             setTotalWords(res); // res 是 totalWords 类型
-//         } catch (err) {
-//             console.error('获取总字数失败：', err);
-//         }
-//     };
+        const fetchTotalWords = async () => {
+            try {
+                const res = await getUserTotalWordCount(userId);  // 获取的就是 totalWords
+                console.log('获取总字数成功：', res);
+                setTotalWords(res.totalWordCount || 0);
+            } catch (err) {
+                console.error('获取总字数失败：', err);
+            }
+        };
 
-//     fetchTotalWords();  // 调用异步函数
+        fetchTotalWords();  // 调用异步函数
 
-// }, [userId, selectedCategoryId]);
+    }, [userId]);
 
 
     useEffect(() => {
         if (categories.length === 0) return;
+        // 选中了“全部”时不强制切到第一个分类
+        if (isAllCategory) return;
 
         // 如果当前没有选中分类，默认选第一个
         if (selectedCategoryId === null) {
             setTimeout(() => {
-            setSelectedCategoryId(categories[0].id);
+                setSelectedCategoryId(categories[0].id);
             }, 0);
         }
-    }, [categories]);
-
-    useEffect(() => {
-        if (categories.length === 0) return;
-
-        // 如果当前没有选中分类，默认选第一个
-        if (selectedCategoryId === null) {
-            setTimeout(() => {
-            setSelectedCategoryId(categories[0].id);
-            }, 0);
-        }
-    }, [categories]);
+    }, [categories, isAllCategory, selectedCategoryId]);
 
     // 替换原来的 matchedArticle 定义
     const matchedArticle = useMemo(() => {
@@ -377,16 +440,26 @@ function Home() {
                         {userInfo?.avatar ? <img src={userInfo.avatar} alt="avatar" /> : userInfo?.username[0]}
                     </div>
                     <div className={styles.userInfo}>
-                        <div className={styles.userName}>{userInfo?.username}</div>
-                        <div className={styles.idNumber}>ID: {userInfo?.id}</div>
+                        <div className={styles.userNameRow}>
+                            <div className={styles.userName}>{userInfo?.username}</div>
+                            <button
+                                className={styles.userEditBtn}
+                                title="Edit Profile"
+                                onClick={openProfileModal}
+                            >
+                                <EditOutlined />
+                            </button>
+                        </div>
+                        {/* <div className={styles.idNumber}>ID: {userInfo?.id}</div> */}
+                        <div className={styles.userBio}>{userInfo?.bio || '暂无简介'}</div>
                     </div>
                 </div>
-                {/* <div className={styles.statCard}>
+                <div className={styles.statCard}>
                     <div className={styles.statLabel}>
                         <span>LIFETIME WORDS</span>
                     </div>
-                    <div className={styles.statNumber}>{totalWords?.totalWordCount}</div>
-                </div> */}
+                    <div className={styles.statNumber}>{totalWords}</div>
+                </div>
                 <div className={styles.navHeader}>
                     <span>Categories</span>
                     <button className={styles.addCategoryBtn} onClick={() => addCategory()} >
@@ -395,6 +468,30 @@ function Home() {
                 </div>
 
                 <div className={styles.navMenu}>
+                    {/* 全部分类 */}
+                    <div
+                        className={`${styles.navItem} ${isAllCategory ? styles.navItemActive : ''}`}
+                        onClick={async () => {
+                            if (!userId) {
+                                message.error('未找到用户信息，无法加载全部笔记');
+                                return;
+                            }
+                            setIsAllCategory(true);
+                            setSelectedCategoryId(null);
+                            setViewMode('list');
+                            try {
+                                const allNotes = await getNotesByUser(userId);
+                                setArticles(allNotes);
+                                setSelectedArticleId(allNotes.length ? allNotes[0].id : null);
+                            } catch (error) {
+                                console.error('获取全部笔记失败：', error);
+                                message.error('获取全部笔记失败');
+                            }
+                        }}
+                    >
+                        <span>全部</span>
+                    </div>
+
                     {categories.map(cat => {
                         return (
                             <div
@@ -403,6 +500,7 @@ function Home() {
                                     }`}
                                 onClick={() => {
                                     setSelectedCategoryId(cat.id);
+                                    setIsAllCategory(false);
                                     setViewMode('list');
                                 }}
                             >
@@ -460,9 +558,27 @@ function Home() {
             {/* 2. Middle Column */}
             <div className={styles.middleColumn}>
                 <div className={styles.middleHeader}>
-                    <span className={styles.listTitle}>
-                        {/* Index / {selectedCategoryId ? getCategoryName(selectedCategoryId) : 'All'} */}
-                    </span>
+                    <div className={styles.searchArea}>
+                        {isSearchVisible ? (
+                            <Input
+                                id="note-search"
+                                className={styles.searchInput}
+                                placeholder="搜索标题或内容..."
+                                value={searchKeyword}
+                                allowClear
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                onPressEnter={handleSearchNotes}
+                                autoFocus
+                            />
+                        ) : (
+                            <button
+                                className={styles.searchTrigger}
+                                onClick={() => setIsSearchVisible(true)}
+                            >
+                                Search
+                            </button>
+                        )}
+                    </div>
 
                     <div className={styles.toggleSwitch}>
                         <button
@@ -525,6 +641,11 @@ function Home() {
                                 </Popconfirm>
                             </div>
                         ))}
+                        {selectedCategoryId && (!articles || articles.length === 0) && (
+                            <div className={styles.emptyState} style={{ height: '200px' }}>
+                                该分类下暂无笔记
+                            </div>
+                        )}
                     </div>
 
                 ) : (
@@ -620,6 +741,31 @@ function Home() {
                     maxLength={20}
                     autoFocus
                 />
+            </Modal>
+
+            <Modal
+                title="编辑个人资料"
+                open={isProfileModalOpen}
+                okText="保存"
+                cancelText="取消"
+                onOk={handleUpdateProfile}
+                onCancel={() => setIsProfileModalOpen(false)}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <Input
+                        value={profileUsername}
+                        onChange={(e) => setProfileUsername(e.target.value)}
+                        placeholder="用户名"
+                        maxLength={20}
+                    />
+                    <Input.TextArea
+                        value={profileIntro}
+                        onChange={(e) => setProfileIntro(e.target.value)}
+                        placeholder="个人简介"
+                        maxLength={80}
+                        autoSize={{ minRows: 3, maxRows: 5 }}
+                    />
+                </div>
             </Modal>
 
         </div>

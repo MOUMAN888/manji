@@ -12,6 +12,15 @@ export interface totalWords {
     totalWordCount: number;
 }
 
+// 修改用户信息（用户名/简介）
+export const updateUserInfo = async (
+    userId: number,
+    params: { username?: string; intro?: string }
+): Promise<UserInfo> => {
+    const res = await request.put<UserInfo>(`/users/${userId}`, params);
+    return res as unknown as UserInfo;
+};
+
 // 注册
 export const register = (params: {
     username: string;
@@ -30,7 +39,8 @@ export const login = (params: {
     return request.post<UserInfo>('/users/login', params);
 };
 
-// //统计用户总字数
-// export const getUserTotalWordCount = (userId: number): Promise<totalWords> => {
-//     return request.get<totalWords>(`/users/word-count/${userId}`).then(res => res); // 直接返回 res.data
-// }
+// 统计用户总字数
+export const getUserTotalWordCount = async (userId: number): Promise<totalWords> => {
+    const res = await request.get<totalWords>(`/users/word-count/${userId}`);
+    return res as unknown as totalWords;
+};

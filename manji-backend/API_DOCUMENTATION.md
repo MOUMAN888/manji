@@ -146,6 +146,47 @@
 
 ---
 
+### 1.5 修改用户信息
+
+**接口地址**: `PUT /api/users/:userId`
+
+**接口描述**: 修改用户个人资料（支持部分更新：用户名 / 简介）
+
+**路径参数**:
+- `userId`: number (必填) - 用户ID
+
+**请求参数**:
+
+```json
+{
+  "username": "string (可选)",
+  "intro": "string (可选)"
+}
+```
+
+**响应示例**:
+
+```json
+{
+  "code": 200,
+  "data": {
+    "id": 1,
+    "username": "new_name",
+    "avatar": "",
+    "intro": "新的个人简介"
+  },
+  "message": "修改个人信息成功"
+}
+```
+
+**错误响应**:
+- `用户ID不能为空` - 参数缺失
+- `至少需要传入一个要更新的字段（username 或 intro）` - 未传入更新字段
+- `用户不存在` - userId 不存在
+- `用户名已存在` - 用户名重复
+
+---
+
 ## 2. 笔记相关 API (`/api/notes`)
 
 ### 2.1 创建笔记
@@ -425,7 +466,46 @@
 
 ---
 
-### 2.9 删除笔记
+### 2.9 搜索笔记（按标题/内容模糊匹配）
+
+**接口地址**: `GET /api/notes/search`
+
+**接口描述**: 根据关键字在当前用户的笔记标题和内容中进行模糊搜索，返回匹配的笔记列表（按创建时间倒序）
+
+**查询参数**:
+- `userId`: number (必填) - 用户ID
+- `keyword`: string (必填) - 搜索关键字，将同时在 `title` 和 `content` 中做 `LIKE %keyword%` 匹配
+
+**响应示例**:
+
+```json
+{
+  "code": 200,
+  "data": [
+    {
+      "id": 1,
+      "userId": 1,
+      "categoryId": 1,
+      "title": "与关键字相关的笔记标题",
+      "content": "这里是包含关键字的笔记内容...",
+      "wordCount": 42,
+      "createTime": "2026-01-16T10:00:00.000Z",
+      "categoryName": "工作"
+    }
+  ],
+  "message": "搜索笔记成功"
+}
+```
+
+**字段说明**:
+- `categoryName`: string | null - 对应分类名称，来源于分类表（若没有分类则为 `null`）
+
+**错误响应**:
+- `userId、keyword 不能为空` - 参数缺失
+
+---
+
+### 2.10 删除笔记
 
 **接口地址**: `DELETE /api/notes/:noteId`
 

@@ -94,6 +94,36 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.userInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.userNameRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.userEditBtn {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    /* padding: 4px; */
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.userEditBtn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+}
+
 .avatar {
     width: 36px;
     height: 36px;
@@ -125,56 +155,62 @@
     color: #666;
 }
 
+.userBio {
+    margin-top: 6px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.35;
+    overflow: hidden;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
 /* --- 极简数据卡片样式 --- */
 .statCard {
-    /* 位置与间距 */
-    margin: 15px 15px 10px;
-    padding: 10px;
+    /* 与 userCard/navHeader 左右对齐 */
+    margin: 12px 20px 16px;
+    padding: 10px 16px 12px;
 
-    /* 玻璃质感背景 */
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    /* 深色半玻璃卡片，整体对称 */
+    background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.10), transparent 60%),
+        linear-gradient(150deg, rgba(12, 12, 18, 0.98), rgba(18, 18, 26, 0.98));
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
 
-    /* 装饰：左侧强调线，使用你的主题色 */
-    border-left: 3px solid var(--accent);
-
-    /* 字体 */
-    font-family: var(--font-mono);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
 }
 
 .statLabel {
-    font-size: 0.7rem;
-    color: #888;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 4px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    /* 图标和文字的间距 */
+    text-align: center;
 }
 
 .statLabel span {
-    flex: 1;
-    /* 文字占满剩余空间 */
-    text-align: center;
-
+    display: inline-block;
 }
 
-
 .statNumber {
-    font-size: 2rem;
-    /* 大字体，突出成就感 */
-    font-weight: 500;
+    font-size: 2.2rem;
+    font-weight: 600;
     text-align: center;
-    color: #fff;
-    line-height: 1;
-    letter-spacing: -1px;
-    /* 稍微紧凑一点，更像数字时钟 */
+    line-height: 1.05;
+    letter-spacing: -0.04em;
 
-    /* 可选：给文字加一点微弱的发光效果 */
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    /* 高级感渐变文字 */
+    background: linear-gradient(120deg, #ffffff, #fef3d4, #ffd28f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    text-shadow: 0 5px 16px rgba(0, 0, 0, 0.6);
 }
 
 /* 鼠标放上去时的交互反馈 */
@@ -297,6 +333,70 @@
     letter-spacing: 1px;
 }
 
+.searchArea {
+    flex: 1;
+    margin-right: 12px;
+}
+
+.searchTrigger {
+    width: 100%;
+    padding: 12px;
+    border-radius: 999px; /* 明显的“胶囊按钮”形状 */
+    border: 1px dashed rgba(0, 0, 0, 0.12);
+    background: #fafafa;
+    color: #999;
+    font-size: 0.8rem;
+    cursor: text;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.searchTrigger:hover {
+    padding: 12px;
+    border-style: solid;
+    border-color: var(--accent);
+    background: #fff;
+    color: #666;
+}
+
+.searchInput {
+    width: 100%;
+}
+
+/* 输入框 wrapper（allowClear 时由 Ant Design 包裹，控制整体 padding 和圆角） */
+.searchInput:global(.ant-input-affix-wrapper) {
+    padding: 12px 12px 12px 16px;
+    border-radius: 999px;
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: none;
+    background: #fafafa;
+}
+
+.searchInput:global(.ant-input-affix-wrapper-focused) {
+    padding: 10px 10px 10px 14px;   /* focus 时 padding 变小 */
+    border-radius: 999px;            /* 圆角不变 */
+    border-color: var(--accent);
+    box-shadow: none;
+    background: #fff;
+}
+
+/* 内层 input 和 placeholder */
+.searchInput :global(.ant-input) {
+    font-size: 0.75rem;
+    background: transparent;
+}
+
+.searchInput :global(.ant-input::placeholder) {
+    font-size: 0.75rem;
+    color: #b0b0b0;
+}
+
+/* 清除图标：确保 focus 时 padding 调整后图标仍可见 */
+.searchInput :global(.ant-input-clear-icon) {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.45);
+}
+
 .toggleSwitch {
     position: relative;
     background: #f0f0f0;
@@ -362,6 +462,7 @@
     color: #333;
     line-height: 1.4;
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
